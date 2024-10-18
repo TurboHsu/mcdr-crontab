@@ -12,6 +12,7 @@ PLUGIN_METADATA = {
 }
 
 executor = None
+permission_level = 3 # Operator
 
 class CronTab(Thread):
     def __init__(self, server: ServerInterface):
@@ -124,7 +125,7 @@ def on_load(server: PluginServerInterface, old_module):
     global executor
     executor = CronTab(server)
     server.register_command(
-        Literal('!!crontab').then(
+        Literal('!!crontab').requires(lambda src: src.has_permission(permission_level)).then(
             Literal('reload').runs(lambda src: (
                 executor.reload_crontab(),
                 src.reply('Reloaded crontab with {} tasks'.format(len(executor.crontab_tasks)))
